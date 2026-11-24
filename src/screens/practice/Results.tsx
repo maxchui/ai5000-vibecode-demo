@@ -2,6 +2,7 @@ import { Check, X as Cross } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useEffect, useState } from 'react'
 import { Bubble, Coach, type Mood } from '../../components/Coach'
+import { Pack } from '../../components/Pack'
 import { Ring } from '../../components/Ring'
 import { Rich } from '../../components/X'
 import { SKILLS, skillInfo } from '../../engine/generate'
@@ -27,6 +28,9 @@ export function Results({
 }) {
   const now = useStore((s) => mastery(s.profile.skills[skill]))
   const unlocked = useStore((s) => s.profile.unlocked)
+  const packs = useStore((s) => s.profile.packs)
+  const openPack = useStore((s) => s.openPack)
+  const go = useStore((s) => s.go)
   const info = skillInfo(skill)
   const right = summary.results.filter(Boolean).length
   const total = summary.results.length
@@ -124,8 +128,33 @@ export function Results({
           </div>
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <button type="button" autoFocus className="key key-primary" onClick={onAgain}>
+        {/* Every finished round earns a pack. Once it is opened, this turns into the way to the collection. */}
+        <div className="mt-7 flex items-center gap-4 rounded-2xl bg-sky py-3 pr-4 pl-5">
+          {packs > 0 ? (
+            <>
+              <Pack className="h-[4.5rem] shrink-0 -rotate-6" />
+              <p className="min-w-0 leading-snug">
+                <span className="block font-display text-xl font-bold">You earned a pack</span>
+                <span className="block text-base">
+                  {packs === 1 ? 'Three move cards for your collection.' : `You have ${packs} packs to open.`}
+                </span>
+              </p>
+              <button type="button" autoFocus className="key key-hi ml-auto shrink-0" onClick={openPack}>
+                Open the pack
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="min-w-0 py-1 text-base leading-snug">Your new cards are in the collection.</p>
+              <button type="button" className="link ml-auto shrink-0" onClick={() => go('collection')}>
+                See the collection
+              </button>
+            </>
+          )}
+        </div>
+
+        <div className="mt-7 flex flex-wrap gap-3">
+          <button type="button" autoFocus={packs === 0} className="key key-primary" onClick={onAgain}>
             Play another round
           </button>
           {suggestHarder && (

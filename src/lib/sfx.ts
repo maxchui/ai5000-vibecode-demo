@@ -63,5 +63,7 @@ export const sfx = {
   tip: () => play({ freq: 440, to: 150, for: 0.5, wave: 'sine', vol: 0.09 }),
   share: () => run([392, 523, 659], 0.07, { for: 0.14, wave: 'sine' }),
   reveal: () => run([523, 659, 784, 1047], 0.08, { for: 0.26 }),
+  rip: () => play({ freq: 1100, to: 170, for: 0.2, wave: 'sawtooth', vol: 0.05 }),
+  shine: () => run([1047, 1319, 1568, 2093, 2637], 0.07, { for: 0.45, wave: 'sine', vol: 0.07 }),
   cheer: () => run([523, 659, 784, 1047, 1319], 0.09, { for: 0.3, wave: 'square', vol: 0.045 }),
 }

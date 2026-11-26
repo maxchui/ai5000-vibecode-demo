@@ -1,4 +1,4 @@
-import { BookImage, Layers, Scale, Target, type LucideIcon } from 'lucide-react'
+import { Layers, Scale, Target, type LucideIcon } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useRef, useState } from 'react'
 import { Bubble, Coach, type Mood } from '../components/Coach'
@@ -251,10 +251,7 @@ function NextRow({
   )
 }
 
-/**
- * Three places to go from here, each with the one thing most worth doing there.
- * There is only room for three, so a pack waiting to be opened takes the place of flashcards.
- */
+/** The three places to go from here, each with the one thing most worth doing there. */
 function NextUp() {
   const profile = useStore((s) => s.profile)
   const go = useStore((s) => s.go)
@@ -296,27 +293,13 @@ function NextUp() {
           line={practiceLine}
           onClick={() => go('practice', skill)}
         />
-        {profile.packs > 0 ? (
-          <NextRow
-            icon={BookImage}
-            tone="bg-cobalt text-white"
-            title="Collection"
-            line={
-              profile.packs === 1
-                ? 'A pack of 3 move cards is waiting to be opened.'
-                : `${profile.packs} packs of move cards are waiting to be opened.`
-            }
-            onClick={() => go('collection')}
-          />
-        ) : (
-          <NextRow
-            icon={Layers}
-            tone="bg-tick text-white"
-            title="Flashcards"
-            line={cardsLine}
-            onClick={() => go('cards')}
-          />
-        )}
+        <NextRow
+          icon={Layers}
+          tone="bg-tick text-white"
+          title="Flashcards"
+          line={cardsLine}
+          onClick={() => go('cards')}
+        />
       </div>
     </section>
   )

@@ -29,11 +29,8 @@ Put the browser in full screen before presenting. The app sizes itself to the sc
 3. **Home.** Answer the warm-up question. The streak reaches 7 days and a badge appears.
 4. **Balance Lab.** Challenge 5 is waiting. Pick the one-sided move first to tip the scale, put the weights back, then solve it properly and watch the box open. Challenge 6 completes the set and reaches level 5.
 5. **Practice.** Start a round of Brackets. One right answer unlocks the last skill. Get one wrong on purpose to show the worked steps, and press "Show a hint" once.
-6. **Collection.** A pack is waiting. Press "Open the pack", click the pack, and three cards turn over. The last one is a holo card. Move the mouse over it to tip it and watch the foil move.
-7. **Flashcards.** Space flips a card. The arrow keys sort it.
-8. **Progress.** Point at the chart bars and the badges.
-
-Finishing a Practice round earns a second pack. With the demo player, that pack holds the other holo card and completes the album, so it makes a good ending if there is time to play all five questions.
+6. **Flashcards.** Space flips a card. The arrow keys sort it.
+7. **Progress.** Point at the chart bars and the badges.
 
 Shift + R starts again from zero. Both shortcuts are also in Settings (the cog, bottom left).
 
@@ -42,7 +39,6 @@ Shift + R starts again from zero. Both shortcuts are also in Settings (the cog, 
 - **Balance Lab:** an equation shown as a balance scale. Six set challenges plus endless random ones.
 - **Practice:** five skills, from one-step equations to fractions and negatives. Three kinds of question, three hints each, and a full worked solution after a miss.
 - **Flashcards:** sixteen cards on the words and rules of algebra.
-- **Collection:** twelve cards to collect, each one a move for solving equations with its rule and a worked example. Every finished Practice round earns a pack of three. Ten cards are common or rare and two are holo, with a glow and a foil that follows the mouse.
 - **Progress:** XP per day, mastery of each skill, and twelve badges.
 - XP, levels, a daily goal and a day streak run through all of it.
 
@@ -53,25 +49,21 @@ Shift + R starts again from zero. Both shortcuts are also in Settings (the cog, 
 - It is laid out for a laptop or projector, not a phone.
 - Progress is saved in whichever browser opened it. The double-click file and the `npm run dev` version keep separate progress.
 - Sound is on by default. The speaker icon, bottom left, mutes it.
-- The cards are for collecting, not trading. The app runs on one computer, so there is nobody to trade with.
-- Packs are random, with one rule: until the album is full, every pack has at least one card you do not have yet. The demo player is missing only the two holo cards, which is why its packs are certain to hold them.
-- The holo effect needs a mouse or trackpad to steer it. Left alone, the card on show rocks gently by itself.
 
 ## For the curious
 
 | Folder | What lives there |
 | --- | --- |
 | `src/engine` | Makes the questions, solves them step by step, and runs the balance scale's rules |
-| `src/store` | XP, levels, streaks, badges, card packs and the demo player |
-| `src/content` | The flashcards and the twelve collectable cards |
-| `src/screens` | The six screens |
-| `src/components` | Shared pieces: the coach, the drawn x, equations, celebrations, the cards and the pack |
+| `src/store` | XP, levels, streaks, badges and the demo player |
+| `src/screens` | The five screens |
+| `src/components` | Shared pieces: the coach, the drawn x, equations, celebrations |
 
 ```bash
 npm test
 ```
 
-runs 53 checks. Among other things they generate over 20,000 questions and confirm that every answer is right, every line of working is true, and no multiple-choice question has two correct options. They also check the working printed on every card, and that the demo player's packs really do hold the holo cards.
+runs 40 checks. Among other things they generate over 20,000 questions and confirm that every answer is right, every line of working is true, and no multiple-choice question has two correct options.
 
 ```bash
 npm run build

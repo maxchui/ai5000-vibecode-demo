@@ -23,7 +23,6 @@ export function suggestedSkill(): SkillId {
 export function Practice() {
   const asked = useStore((s) => s.practiceSkill)
   const clearAsked = useStore((s) => s.clearPracticeSkill)
-  const finishRound = useStore((s) => s.finishRound)
   const [selected, setSelected] = useState<SkillId>(
     () => useStore.getState().practiceSkill ?? suggestedSkill(),
   )
@@ -52,10 +51,7 @@ export function Practice() {
           key={view.key}
           skill={view.skill}
           onLeave={() => setView({ at: 'map' })}
-          onDone={(summary) => {
-            finishRound()
-            setView({ at: 'results', skill: view.skill, summary })
-          }}
+          onDone={(summary) => setView({ at: 'results', skill: view.skill, summary })}
         />
       )
     case 'results':

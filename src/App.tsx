@@ -2,12 +2,10 @@ import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import { Celebrations } from './components/Celebrations'
 import { Hud } from './components/Hud'
-import { PackReveal } from './components/PackReveal'
 import { Rail } from './components/Rail'
 import { Settings } from './components/Settings'
 import { Welcome } from './components/Welcome'
 import { BalanceLab } from './screens/BalanceLab'
-import { Collection } from './screens/Collection'
 import { Flashcards } from './screens/Flashcards'
 import { Home } from './screens/Home'
 import { Practice } from './screens/Practice'
@@ -18,7 +16,6 @@ const TITLES: Record<Exclude<Tab, 'home'>, string> = {
   lab: 'Balance Lab',
   practice: 'Practice',
   cards: 'Flashcards',
-  collection: 'Collection',
   progress: 'Progress',
 }
 
@@ -32,8 +29,6 @@ function Screen({ tab }: { tab: Tab }) {
       return <Practice />
     case 'cards':
       return <Flashcards />
-    case 'collection':
-      return <Collection />
     case 'progress':
       return <Progress />
   }
@@ -132,7 +127,6 @@ export default function App() {
         </motion.div>
       </main>
 
-      <PackReveal />
       <Celebrations />
       {settings && <Settings onClose={() => setSettings(false)} />}
       <Toast />

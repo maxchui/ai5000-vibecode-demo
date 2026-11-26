@@ -100,20 +100,18 @@ function Body({ item }: { item: Celebration }) {
 export function Celebrations() {
   const queued = useStore((s) => s.celebrations[0])
   const dismissQueued = useStore((s) => s.dismissCelebration)
-  const openingPack = useStore((s) => s.reveal !== null)
   const [shownKey, setShownKey] = useState<number | null>(null)
   const lastDismissed = useRef(0)
   const queuedKey = queued?.key
 
   // Wait a beat before taking over the screen, so the thing that earned the
-  // celebration (the right answer, the box opening) gets seen first. A pack
-  // being opened is its own big moment, so anything queued waits for it.
+  // celebration (the right answer, the box opening) gets seen first.
   useEffect(() => {
-    if (queuedKey === undefined || openingPack) return
+    if (queuedKey === undefined) return
     const justDismissed = performance.now() - lastDismissed.current < 700
     const timer = window.setTimeout(() => setShownKey(queuedKey), justDismissed ? 280 : 1150)
     return () => window.clearTimeout(timer)
-  }, [queuedKey, openingPack])
+  }, [queuedKey])
 
   const item = queued && queued.key === shownKey ? queued : null
   const key = item?.key

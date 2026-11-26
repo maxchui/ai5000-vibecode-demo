@@ -30,8 +30,7 @@ export const BADGES: Badge[] = [
   { id: 'bounce-back', name: 'Bounce back', how: 'Get one right straight after a miss', tone: 'tick' },
   { id: 'balanced', name: 'Balanced', how: 'Solve an equation in the Balance Lab', tone: 'cobalt' },
   { id: 'scale-master', name: 'Scale master', how: 'Solve all six Balance Lab challenges', tone: 'hi' },
-  // Called "Full deck" so it is not mixed up with the card collection. Saved games remember the id, so that stays.
-  { id: 'card-collector', name: 'Full deck', how: 'Mark every flashcard as known', tone: 'box' },
+  { id: 'card-collector', name: 'Card collector', how: 'Mark every flashcard as known', tone: 'box' },
   { id: 'warming-up', name: 'Warming up', how: 'Keep a 3-day streak', tone: 'box' },
   { id: 'week-warrior', name: 'Week warrior', how: 'Keep a 7-day streak', tone: 'hi' },
   { id: 'high-five', name: 'High five', how: 'Reach level 5', tone: 'tick' },

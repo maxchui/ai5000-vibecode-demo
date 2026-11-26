@@ -1,5 +1,4 @@
 import {
-  BookImage,
   ChartColumn,
   House,
   Layers,
@@ -19,7 +18,6 @@ export const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'lab', label: 'Balance Lab', icon: Scale },
   { id: 'practice', label: 'Practice', icon: Target },
   { id: 'cards', label: 'Flashcards', icon: Layers },
-  { id: 'collection', label: 'Collection', icon: BookImage },
   { id: 'progress', label: 'Progress', icon: ChartColumn },
 ]
 
@@ -44,7 +42,6 @@ export function Logo({ className = '' }: { className?: string }) {
 export function Rail({ onSettings }: { onSettings: () => void }) {
   const tab = useStore((s) => s.tab)
   const go = useStore((s) => s.go)
-  const packs = useStore((s) => s.profile.packs)
   const muted = useStore((s) => s.muted)
   const toggleMuted = useStore((s) => s.toggleMuted)
 
@@ -70,14 +67,6 @@ export function Rail({ onSettings }: { onSettings: () => void }) {
               >
                 <Icon className="h-6 w-6 shrink-0" strokeWidth={2.4} aria-hidden />
                 {label}
-                {id === 'collection' && packs > 0 && (
-                  <span
-                    className="tabular ml-auto grid h-6 min-w-6 place-items-center rounded-full border-2 border-ink bg-hi px-1 text-sm leading-none font-black text-ink"
-                    aria-label={packs === 1 ? '1 pack to open' : `${packs} packs to open`}
-                  >
-                    {packs}
-                  </span>
-                )}
               </button>
             </li>
           )

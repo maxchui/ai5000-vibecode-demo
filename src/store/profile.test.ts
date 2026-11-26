@@ -1,19 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { FLASHCARDS } from '../content/flashcards'
-import { moveInfo, MOVES, RARITY } from '../content/moves'
 import { LAB_PRESETS } from '../engine/lab'
-import { mulberry32 } from '../engine/rng'
-import { albumComplete, drawPack, foundCount, PACK_SIZE, type Album } from './packs'
-import {
-  applyAnswer,
-  applyCard,
-  applyLabSolve,
-  applyPack,
-  applyRound,
-  demoProfile,
-  freshProfile,
-  type Profile,
-} from './profile'
+import { applyAnswer, applyCard, applyLabSolve, demoProfile, freshProfile, type Profile } from './profile'
 import {
   dayKey,
   lastDays,
@@ -165,77 +153,6 @@ describe('balance lab and flashcards', () => {
   })
 })
 
-describe('card collection', () => {
-  const rarityOf = (id: Parameters<typeof moveInfo>[0]) => moveInfo(id).rarity
-  const withPacks = (packs: number, album: Album = {}): Profile => ({ ...freshProfile(), packs, album })
-
-  it('a finished round earns one pack', () => {
-    const p = applyRound(applyRound(freshProfile()))
-    expect(p.packs).toBe(2)
-    expect(p.album).toEqual({})
-  })
-
-  it('opening a pack puts three different cards in the album', () => {
-    const out = applyPack(withPacks(2), mulberry32(7))
-    expect(out.profile.packs).toBe(1)
-    expect(out.pulls).toHaveLength(PACK_SIZE)
-    expect(new Set(out.pulls.map((pull) => pull.id)).size).toBe(PACK_SIZE)
-    expect(out.pulls.every((pull) => pull.isNew && pull.copies === 1)).toBe(true)
-    expect(foundCount(out.profile.album)).toBe(PACK_SIZE)
-    expect(out.completed).toBe(false)
-  })
-
-  it('counts a second copy as a copy, not as a new card', () => {
-    const album: Album = Object.fromEntries(MOVES.map((card) => [card.id, 1]))
-    const out = applyPack(withPacks(1, album), mulberry32(3))
-    expect(out.pulls.every((pull) => !pull.isNew && pull.copies === 2)).toBe(true)
-    expect(foundCount(out.profile.album)).toBe(MOVES.length)
-    // The album was full already, so this pack is not the one that completed it.
-    expect(out.completed).toBe(false)
-  })
-
-  it('does nothing when there is no pack to open', () => {
-    const p = freshProfile()
-    const out = applyPack(p, mulberry32(1))
-    expect(out.profile).toBe(p)
-    expect(out.pulls).toEqual([])
-  })
-
-  it('always holds a new card until the album is full, so twelve packs are enough', () => {
-    for (let seed = 1; seed <= 300; seed++) {
-      const rng = mulberry32(seed)
-      let p = withPacks(MOVES.length)
-      let opened = 0
-      while (!albumComplete(p.album)) {
-        const out = applyPack(p, rng)
-        expect(out.pulls.some((pull) => pull.isNew)).toBe(true)
-        p = out.profile
-        opened++
-        expect(out.completed).toBe(albumComplete(p.album))
-      }
-      expect(opened).toBeLessThanOrEqual(MOVES.length)
-    }
-  })
-
-  it('turns the rarest card over last', () => {
-    for (let seed = 1; seed <= 300; seed++) {
-      const ranks = drawPack({}, mulberry32(seed)).map((id) => RARITY[rarityOf(id)].rank)
-      expect(ranks).toEqual([...ranks].sort((a, b) => a - b))
-    }
-  })
-
-  it('makes holo cards the hardest to find', () => {
-    const full: Album = Object.fromEntries(MOVES.map((card) => [card.id, 1]))
-    const rng = mulberry32(42)
-    const seen = { common: 0, rare: 0, holo: 0 }
-    for (let n = 0; n < 4000; n++) for (const id of drawPack(full, rng)) seen[rarityOf(id)]++
-    // Per card, not per group: there are five commons, five rares and two holos.
-    expect(seen.common / 5).toBeGreaterThan((seen.rare / 5) * 1.3)
-    expect(seen.rare / 5).toBeGreaterThan((seen.holo / 2) * 1.5)
-    expect(seen.holo).toBeGreaterThan(0)
-  })
-})
-
 describe('demo player', () => {
   const demo = demoProfile(TODAY, 'Sam')
 
@@ -273,31 +190,6 @@ describe('demo player', () => {
     const two = right(one.profile, 'brackets')
     expect(two.cheers).toContainEqual({ kind: 'level', level: 5, title: 'Bracket buster' })
     expect(two.cheers).toContainEqual({ kind: 'badge', badge: 'high-five' })
-  })
-
-  it('has a pack waiting and every card but the two holo ones', () => {
-    expect(demo.packs).toBe(1)
-    expect(foundCount(demo.album)).toBe(MOVES.length - 2)
-    for (const card of MOVES) {
-      const copies = demo.album[card.id]
-      if (card.rarity === 'holo') expect(copies).toBeUndefined()
-      else expect(copies).toBeGreaterThanOrEqual(1)
-    }
-  })
-
-  it('finds a holo card in the waiting pack and completes the album with the next one', () => {
-    for (let seed = 1; seed <= 300; seed++) {
-      const rng = mulberry32(seed)
-      const first = applyPack(demo, rng)
-      const last = first.pulls[first.pulls.length - 1]
-      expect(moveInfo(last.id).rarity).toBe('holo')
-      expect(last.isNew).toBe(true)
-
-      // Now and then the first pack holds both holo cards. Either way the album is full after the second.
-      const second = applyPack(applyRound(first.profile), rng)
-      expect(first.completed || second.completed).toBe(true)
-      expect(albumComplete(second.profile.album)).toBe(true)
-    }
   })
 
   it('completes the Balance Lab set with the last two challenges', () => {

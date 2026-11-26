@@ -1,8 +1,11 @@
 import { FLASHCARDS } from '../content/flashcards'
+import { MOVES, type MoveId } from '../content/moves'
 import { SKILL_ORDER, skillInfo } from '../engine/generate'
 import { LAB_PRESETS } from '../engine/lab'
+import type { Rng } from '../engine/rng'
 import type { SkillId } from '../engine/types'
 import type { BadgeId } from './badges'
+import { albumComplete, copiesOf, drawPack, type Album } from './packs'
 import {
   emptySkills,
   levelInfo,
@@ -43,6 +46,10 @@ export interface Profile {
   cards: Record<string, number>
   /** Badge id to the date it was earned. */
   badges: Partial<Record<BadgeId, string>>
+  /** The card collection: how many copies of each move card are owned. */
+  album: Album
+  /** Card packs earned and not opened yet. */
+  packs: number
 }
 
 export const CARD_LEARNING = 1
@@ -79,6 +86,8 @@ export const freshProfile = (): Profile => ({
   labRandom: 0,
   cards: {},
   badges: {},
+  album: {},
+  packs: 0,
 })
 
 /** Add XP: this also marks today as active, moves the streak on and spots a new level. */
@@ -194,6 +203,41 @@ export function applyCard(p: Profile, id: string, known: boolean, today: string)
   return { profile: badged.profile, cheers: [...gained.cheers, ...badged.cheers], xp }
 }
 
+/** Finishing a Practice round earns one pack, whatever the score. */
+export const applyRound = (p: Profile): Profile => ({ ...p, packs: p.packs + 1 })
+
+/** One card out of a pack. */
+export interface Pull {
+  id: MoveId
+  /** True when this is the first copy. */
+  isNew: boolean
+  /** Copies owned once this one is counted. */
+  copies: number
+}
+
+export interface PackOutcome {
+  profile: Profile
+  pulls: Pull[]
+  /** True when this pack found the last missing card. */
+  completed: boolean
+}
+
+/** Open one pack and put its cards in the album. Does nothing when there is no pack to open. */
+export function applyPack(p: Profile, rng: Rng): PackOutcome {
+  if (p.packs <= 0) return { profile: p, pulls: [], completed: false }
+  const album = { ...p.album }
+  const pulls = drawPack(p.album, rng).map((id): Pull => {
+    const copies = copiesOf(album, id) + 1
+    album[id] = copies
+    return { id, isNew: copies === 1, copies }
+  })
+  return {
+    profile: { ...p, album, packs: p.packs - 1 },
+    pulls,
+    completed: !albumComplete(p.album) && albumComplete(album),
+  }
+}
+
 const T = true
 const F = false
 
@@ -203,7 +247,9 @@ const F = false
  *   the next XP of the day makes a 7-day streak,
  *   32 more XP reaches level 5,
  *   one more right answer in Brackets opens the last skill,
- *   two more Balance Lab challenges complete the set.
+ *   two more Balance Lab challenges complete the set,
+ *   a pack is waiting, and the only cards still missing are the two holo
+ *   ones, so that pack and the next are each certain to hold one.
  */
 export function demoProfile(today: string, name: string): Profile {
   // XP for yesterday, the day before, and so on back for 13 days. Adds up to 668.
@@ -250,5 +296,12 @@ export function demoProfile(today: string, name: string): Profile {
       'skill-master': ago(3),
       'brain-power': ago(2),
     },
+    album: Object.fromEntries(
+      MOVES.filter((card) => card.rarity !== 'holo').map((card, i) => [
+        card.id,
+        [3, 2, 2, 1, 1, 1, 2, 1, 1, 1][i],
+      ]),
+    ),
+    packs: 1,
   }
 }

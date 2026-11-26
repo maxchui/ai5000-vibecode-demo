@@ -7,22 +7,32 @@ import {
   applyAnswer,
   applyCard,
   applyLabSolve,
+  applyPack,
+  applyRound,
   demoProfile,
   freshProfile,
   type AnswerInput,
   type Cheer,
   type Outcome,
   type Profile,
+  type Pull,
 } from './profile'
 import { dayKey } from './progress'
 
-export type Tab = 'home' | 'lab' | 'practice' | 'cards' | 'progress'
+export type Tab = 'home' | 'lab' | 'practice' | 'cards' | 'collection' | 'progress'
 
 /**
  * What the celebration screen shows. Badges earned in the same moment share
  * one screen, so a good answer is never followed by three pop-ups in a row.
  */
 export type Celebration = (Exclude<Cheer, { kind: 'badge' }> | { kind: 'badges'; badges: BadgeId[] }) & {
+  key: number
+}
+
+/** A pack that has just been opened, for the screen that turns its cards over. */
+export interface Reveal {
+  pulls: Pull[]
+  completed: boolean
   key: number
 }
 
@@ -39,6 +49,7 @@ interface Store {
   lastGain: { amount: number; key: number } | null
   /** A short message shown at the bottom of the screen for a moment. */
   toast: { text: string; key: number } | null
+  reveal: Reveal | null
 
   go: (tab: Tab, skill?: SkillId) => void
   clearPracticeSkill: () => void
@@ -48,6 +59,10 @@ interface Store {
   answer: (input: AnswerInput) => { xp: number; combo: number }
   solveLab: (presetId: string | null) => { xp: number; first: boolean }
   rateCard: (id: string, known: boolean) => { xp: number }
+  finishRound: () => void
+  /** Opens one pack. The cards go into the album at once; the reveal is only the show. */
+  openPack: () => void
+  closeReveal: () => void
   dismissCelebration: () => void
   loadDemo: () => void
   reset: () => void
@@ -98,6 +113,7 @@ export const useStore = create<Store>()(
         celebrations: [],
         lastGain: null,
         toast: null,
+        reveal: null,
 
         go: (tab, skill) => set({ tab, practiceSkill: skill ?? null }),
         clearPracticeSkill: () => set({ practiceSkill: null }),
@@ -127,6 +143,19 @@ export const useStore = create<Store>()(
           return { xp: out.xp }
         },
 
+        finishRound: () => set((s) => ({ profile: applyRound(s.profile) })),
+
+        openPack: () => {
+          const out = applyPack(get().profile, Math.random)
+          if (out.pulls.length === 0) return
+          set({
+            profile: out.profile,
+            reveal: { pulls: out.pulls, completed: out.completed, key: ++counter },
+          })
+        },
+
+        closeReveal: () => set({ reveal: null }),
+
         dismissCelebration: () => set((s) => ({ celebrations: s.celebrations.slice(1) })),
 
         loadDemo: () =>
@@ -134,6 +163,7 @@ export const useStore = create<Store>()(
             profile: demoProfile(dayKey(), s.profile.name.trim() || 'Sam'),
             celebrations: [],
             lastGain: null,
+            reveal: null,
             tab: 'home',
             practiceSkill: null,
             toast: { text: 'Demo player loaded', key: ++counter },
@@ -144,6 +174,7 @@ export const useStore = create<Store>()(
             profile: freshProfile(),
             celebrations: [],
             lastGain: null,
+            reveal: null,
             tab: 'home',
             practiceSkill: null,
             toast: { text: 'Started again from zero', key: ++counter },
